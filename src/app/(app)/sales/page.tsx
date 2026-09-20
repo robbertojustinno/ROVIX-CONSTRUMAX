@@ -1,0 +1,1 @@
+import SaleClient from "@/components/SaleClient";export default function Page(){return <SaleClient/>}
