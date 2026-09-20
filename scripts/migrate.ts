@@ -1,8 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { pool } from "../src/lib/db";
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
 
 async function main(){
+  const { pool } = await import("../src/lib/db");
   const dir=path.join(process.cwd(),"db/migrations");
   const files=fs.readdirSync(dir).filter(f=>f.endsWith(".sql")).sort();
   for(const file of files){
