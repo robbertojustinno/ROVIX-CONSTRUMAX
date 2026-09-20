@@ -34,7 +34,7 @@ export default async function QuotePrint({params}:{params:Promise<{id:string}>})
       <div style={{textAlign:"right"}}>
         <h2 style={{margin:0}}>ORÇAMENTO #{q.id}</h2>
         <div>Data: {new Date(q.created_at).toLocaleDateString("pt-BR")}</div>
-        <div>Validade: {q.valid_until?new Date(String(q.valid_until)+"T12:00:00").toLocaleDateString("pt-BR"):"Não informada"}</div>
+        <div>Validade: {q.valid_until?new Date(q.valid_until).toLocaleDateString("pt-BR",{timeZone:"UTC"}):"Não informada"}</div>
       </div>
     </div>
 
