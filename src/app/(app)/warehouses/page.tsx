@@ -1,0 +1,1 @@
+import CrudClient from "@/components/CrudClient";export default function Page(){return <CrudClient title="Depósitos" endpoint="/api/warehouses" fields={[{name:"name",label:"Nome",required:true},{name:"code",label:"Código",required:true},{name:"address",label:"Endereço"}]} columns={["id","name","code","address"]}/>}
