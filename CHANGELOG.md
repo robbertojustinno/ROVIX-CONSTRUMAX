@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.1 - 2026-09-20
+- Edição Portable para Windows sem instalação de Node.js, npm, Docker ou PostgreSQL no cliente.
+- Build standalone do Next.js.
+- PostgreSQL privado executado dentro da própria pasta do CONSTRUMAX.
+- Inicialização com duplo clique em INICIAR_CONSTRUMAX.bat.
+- Primeiro início cria banco, migrations, administrador, depósito e credenciais automaticamente.
+- Portas locais livres são escolhidas automaticamente.
+- Senhas internas e JWT são gerados automaticamente.
+- Navegador abre o CONSTRUMAX automaticamente.
+- PARAR_CONSTRUMAX.bat encerra aplicação e PostgreSQL.
+- BUILD_PORTABLE.ps1 fabrica o ZIP final usando os runtimes instalados somente na máquina de desenvolvimento.
+
 ## 1.2.0 - 2026-09-20
 - Novo menu Administrativo, visível para ADMIN.
 - Configuração do nome da empresa e logo personalizada.
