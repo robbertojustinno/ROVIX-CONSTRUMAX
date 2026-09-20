@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.2 - 2026-09-20
+- Ajuste de estoque passa a trabalhar com novo saldo físico, não alteração direta.
+- Motivo do ajuste é obrigatório.
+- Diferença entre saldo antigo e novo é calculada automaticamente.
+- Ajustes geram movimentação de estoque e auditoria com usuário e data.
+- Tela de estoque passa a ter ações Ajustar, Histórico e Transferir.
+- Histórico por produto/depósito mostra movimentações, motivo e usuário.
+
 ## 1.1.1 - 2026-09-20
 - Orçamentos abertos podem ser excluídos com confirmação.
 - Conversão de orçamento redireciona para a venda gerada.
