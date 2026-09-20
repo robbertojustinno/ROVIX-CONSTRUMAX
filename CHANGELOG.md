@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 - 2026-09-20
+- Novo menu Administrativo, visível para ADMIN.
+- Configuração do nome da empresa e logo personalizada.
+- Logo personalizada passa a aparecer no menu e nos orçamentos impressos.
+- Cadastro administrativo de Categorias, Marcas e Unidades.
+- Tela de Produtos passa a usar listas administradas para categoria, marca e unidade.
+- Campos de Produto ganham rótulos e explicações de SKU, NCM, CEST, custo, preço e estoque mínimo.
+- Produtos podem ser editados, inativados e reativados.
+- Nova migration 003_admin_catalog.sql.
+
 ## 1.1.3 - 2026-09-20
 - Orçamentos abertos podem ser editados após o salvamento.
 - Edição permite alterar cliente, itens, quantidade, preço, desconto, validade e observações.
