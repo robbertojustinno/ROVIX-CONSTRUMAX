@@ -6,6 +6,7 @@ import PrintButton from "@/components/PrintButton";
 export default async function QuotePrint({params}:{params:Promise<{id:string}>}){
   await requireUser();
   const {id}=await params;
+
   const qR=await query<any>(`SELECT q.*,c.name customer,c.document customer_document,c.phone customer_phone,c.email customer_email,c.address customer_address,u.name seller
     FROM quotations q
     LEFT JOIN customers c ON c.id=q.customer_id
@@ -13,6 +14,12 @@ export default async function QuotePrint({params}:{params:Promise<{id:string}>})
     WHERE q.id=$1`,[Number(id)]);
   const q=qR.rows[0];
   if(!q) notFound();
+
+  let brand:any={company_name:"ROVIX CONSTRUMAX",company_logo:""};
+  try{
+    const settings=(await query<any>("SELECT key,value FROM app_settings WHERE key IN ('company_name','company_logo')")).rows;
+    brand={...brand,...Object.fromEntries(settings.map((x:any)=>[x.key,x.value??""]))};
+  }catch{}
 
   const items=(await query<any>(`SELECT qi.*,p.sku,p.name product,p.unit,w.name warehouse
     FROM quotation_items qi
@@ -27,9 +34,12 @@ export default async function QuotePrint({params}:{params:Promise<{id:string}>})
     </div>
 
     <div className="print-header">
-      <div>
-        <h1 style={{margin:0}}>ROVIX CONSTRUMAX</h1>
-        <div>Orçamento de materiais</div>
+      <div style={{display:"flex",alignItems:"center",gap:14}}>
+        {brand.company_logo&&<img src={brand.company_logo} alt="Logo" style={{maxHeight:70,maxWidth:180,objectFit:"contain"}}/>}
+        <div>
+          <h1 style={{margin:0}}>{brand.company_name||"ROVIX CONSTRUMAX"}</h1>
+          <div>Orçamento de materiais</div>
+        </div>
       </div>
       <div style={{textAlign:"right"}}>
         <h2 style={{margin:0}}>ORÇAMENTO #{q.id}</h2>
