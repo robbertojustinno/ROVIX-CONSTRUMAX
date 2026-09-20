@@ -1,3 +1,76 @@
-import { tx,query } from "@/lib/db";import { requireUser } from "@/lib/auth";import { fail,ok } from "@/lib/http";import { audit } from "@/server/audit";
-export async function GET(){try{await requireUser();return ok((await query(`SELECT s.*,c.name customer,u.name seller FROM sales s LEFT JOIN customers c ON c.id=s.customer_id LEFT JOIN users u ON u.id=s.user_id ORDER BY s.id DESC LIMIT 300`)).rows)}catch(e){return fail(e)}}
-export async function POST(req:Request){try{const user=await requireUser(["ADMIN","MANAGER","CASHIER"]);const d=await req.json();if(!Array.isArray(d.items)||!d.items.length)throw new Error("Venda sem itens");const result=await tx(async c=>{let subtotal=0;for(const i of d.items)subtotal+=Number(i.quantity)*Number(i.unit_price);const discount=Number(d.discount??0),total=subtotal-discount;if(total<0)throw new Error("Total inválido");const sale=await c.query(`INSERT INTO sales(customer_id,payment_method,subtotal,discount,total,user_id) VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,[d.customer_id??null,d.payment_method??'CASH',subtotal,discount,total,user.id]);for(const i of d.items){const bal=await c.query(`SELECT quantity FROM stock_balances WHERE product_id=$1 AND warehouse_id=$2 FOR UPDATE`,[i.product_id,i.warehouse_id]);if(!bal.rows[0]||Number(bal.rows[0].quantity)<Number(i.quantity))throw new Error(`Estoque insuficiente para produto ${i.product_id}`);const sub=Number(i.quantity)*Number(i.unit_price);await c.query(`INSERT INTO sale_items(sale_id,product_id,warehouse_id,quantity,unit_price,subtotal) VALUES($1,$2,$3,$4,$5,$6)`,[sale.rows[0].id,i.product_id,i.warehouse_id,i.quantity,i.unit_price,sub]);await c.query(`UPDATE stock_balances SET quantity=quantity-$3 WHERE product_id=$1 AND warehouse_id=$2`,[i.product_id,i.warehouse_id,i.quantity]);await c.query(`INSERT INTO stock_movements(product_id,warehouse_id,movement_type,quantity,reference_type,reference_id,user_id) VALUES($1,$2,'SALE',$3,'SALE',$4,$5)`,[i.product_id,i.warehouse_id,-Number(i.quantity),sale.rows[0].id,user.id])}if(d.payment_method==='CREDIT'){if(!d.customer_id)throw new Error("Crediário exige cliente");await c.query(`INSERT INTO receivables(customer_id,sale_id,description,amount,due_date) VALUES($1,$2,$3,$4,$5)`,[d.customer_id,sale.rows[0].id,`Venda #${sale.rows[0].id}`,total,d.due_date??new Date().toISOString().slice(0,10)])}if(d.delivery?.address){await c.query(`INSERT INTO deliveries(sale_id,customer_id,address,scheduled_date,freight,status,notes) VALUES($1,$2,$3,$4,$5,'PENDING',$6)`,[sale.rows[0].id,d.customer_id??null,d.delivery.address,d.delivery.scheduled_date??null,d.delivery.freight??0,d.delivery.notes??null])}await audit(user.id,"SALE_COMPLETED","sales",sale.rows[0].id,d,c);return sale.rows[0]});return ok(result,201)}catch(e){return fail(e)}}
+import { tx,query } from "@/lib/db";
+import { requireUser } from "@/lib/auth";
+import { fail,ok } from "@/lib/http";
+import { audit } from "@/server/audit";
+
+function addMonths(date:string,months:number){
+  const d=new Date(date+"T12:00:00");
+  d.setMonth(d.getMonth()+months);
+  return d.toISOString().slice(0,10);
+}
+
+export async function GET(){
+  try{
+    await requireUser();
+    return ok((await query(`SELECT s.*,c.name customer,u.name seller FROM sales s
+      LEFT JOIN customers c ON c.id=s.customer_id
+      LEFT JOIN users u ON u.id=s.user_id ORDER BY s.id DESC LIMIT 300`)).rows);
+  }catch(e){return fail(e)}
+}
+
+export async function POST(req:Request){
+  try{
+    const user=await requireUser(["ADMIN","MANAGER","CASHIER"]);
+    const d=await req.json();
+    if(!Array.isArray(d.items)||!d.items.length) throw new Error("Venda sem itens");
+    const result=await tx(async c=>{
+      let subtotal=0;
+      for(const i of d.items) subtotal+=Number(i.quantity)*Number(i.unit_price);
+      const discount=Number(d.discount??0),total=subtotal-discount;
+      if(total<0) throw new Error("Total inválido");
+
+      const sale=await c.query(`INSERT INTO sales(customer_id,payment_method,subtotal,discount,total,user_id)
+        VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,
+        [d.customer_id??null,d.payment_method??"CASH",subtotal,discount,total,user.id]);
+
+      for(const i of d.items){
+        const bal=await c.query(`SELECT quantity FROM stock_balances
+          WHERE product_id=$1 AND warehouse_id=$2 FOR UPDATE`,[i.product_id,i.warehouse_id]);
+        if(!bal.rows[0]||Number(bal.rows[0].quantity)<Number(i.quantity))
+          throw new Error(`Estoque insuficiente para produto ${i.product_id}`);
+        const sub=Number(i.quantity)*Number(i.unit_price);
+        await c.query(`INSERT INTO sale_items(sale_id,product_id,warehouse_id,quantity,unit_price,subtotal)
+          VALUES($1,$2,$3,$4,$5,$6)`,[sale.rows[0].id,i.product_id,i.warehouse_id,i.quantity,i.unit_price,sub]);
+        await c.query(`UPDATE stock_balances SET quantity=quantity-$3
+          WHERE product_id=$1 AND warehouse_id=$2`,[i.product_id,i.warehouse_id,i.quantity]);
+        await c.query(`INSERT INTO stock_movements(product_id,warehouse_id,movement_type,quantity,reference_type,reference_id,user_id)
+          VALUES($1,$2,'SALE',$3,'SALE',$4,$5)`,[i.product_id,i.warehouse_id,-Number(i.quantity),sale.rows[0].id,user.id]);
+      }
+
+      if(d.payment_method==="CREDIT"){
+        if(!d.customer_id) throw new Error("Crediário exige cliente");
+        const count=Math.max(1,Math.min(24,Number(d.installments??1)));
+        const first=d.first_due_date??new Date().toISOString().slice(0,10);
+        const base=Math.floor((total/count)*100)/100;
+        let allocated=0;
+        for(let n=1;n<=count;n++){
+          const amount=n===count?Number((total-allocated).toFixed(2)):base;
+          allocated=Number((allocated+amount).toFixed(2));
+          await c.query(`INSERT INTO receivables(customer_id,sale_id,description,amount,due_date,installment_no,installment_count)
+            VALUES($1,$2,$3,$4,$5,$6,$7)`,
+            [d.customer_id,sale.rows[0].id,`Venda #${sale.rows[0].id} - parcela ${n}/${count}`,amount,addMonths(first,n-1),n,count]);
+        }
+      }
+
+      if(d.delivery?.address){
+        await c.query(`INSERT INTO deliveries(sale_id,customer_id,address,scheduled_date,freight,status,notes)
+          VALUES($1,$2,$3,$4,$5,'PENDING',$6)`,
+          [sale.rows[0].id,d.customer_id??null,d.delivery.address,d.delivery.scheduled_date??null,d.delivery.freight??0,d.delivery.notes??null]);
+      }
+
+      await audit(user.id,"SALE_COMPLETED","sales",sale.rows[0].id,d,c);
+      return sale.rows[0];
+    });
+    return ok(result,201);
+  }catch(e){return fail(e)}
+}
