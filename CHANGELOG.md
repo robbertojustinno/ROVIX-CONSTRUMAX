@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.3 - 2026-09-20
+- Orçamentos abertos podem ser editados após o salvamento.
+- Edição permite alterar cliente, itens, quantidade, preço, desconto, validade e observações.
+- Itens podem ser adicionados ou removidos durante a edição.
+- Orçamentos convertidos permanecem bloqueados para edição, preservando histórico.
+- Botão Imprimir disponível para orçamentos abertos e convertidos.
+- Página própria de impressão em formato A4, com cliente, itens, totais, vendedor e validade.
+- Impressão pode ser enviada à impressora ou salva como PDF pelo navegador.
+
 ## 1.1.2 - 2026-09-20
 - Ajuste de estoque passa a trabalhar com novo saldo físico, não alteração direta.
 - Motivo do ajuste é obrigatório.
