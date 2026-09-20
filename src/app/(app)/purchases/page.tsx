@@ -1,0 +1,1 @@
+import PurchaseClient from "@/components/PurchaseClient";export default function Page(){return <PurchaseClient/>}
