@@ -1,0 +1,1 @@
+import TransferClient from "@/components/TransferClient";export default function Page(){return <TransferClient/>}
