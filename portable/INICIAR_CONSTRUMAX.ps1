@@ -15,7 +15,8 @@ New-Item -ItemType Directory -Force -Path $ConfigDir,$LogsDir,(Join-Path $Root "
 
 function New-Hex([int]$Bytes) {
   $b = New-Object byte[] $Bytes
-  [System.Security.Cryptography.RandomNumberGenerator]::Fill($b)
+  $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+  try { $rng.GetBytes($b) } finally { $rng.Dispose() }
   return ([System.BitConverter]::ToString($b)).Replace("-","").ToLowerInvariant()
 }
 
