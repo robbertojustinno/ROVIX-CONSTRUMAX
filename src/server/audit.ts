@@ -1,0 +1,2 @@
+import { PoolClient } from "pg";import { query } from "@/lib/db";
+export async function audit(userId:number|null,action:string,entity:string,entityId:string|number|null,details:unknown=null,client?:PoolClient){const sql=`INSERT INTO audit_logs(user_id,action,entity,entity_id,details) VALUES($1,$2,$3,$4,$5::jsonb)`;const args=[userId,action,entity,entityId==null?null:String(entityId),JSON.stringify(details??{})];if(client)await client.query(sql,args);else await query(sql,args);}
