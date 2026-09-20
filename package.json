@@ -8,7 +8,7 @@
     "start": "next start -p 3000",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "build:portable": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/BUILD_PORTABLE.ps1"
+    "build:portable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/BUILD_PORTABLE.ps1"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
