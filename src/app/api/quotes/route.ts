@@ -40,3 +40,22 @@ export async function POST(req:Request){
     return ok(result,201);
   }catch(e){return fail(e)}
 }
+
+
+export async function DELETE(req:Request){
+  try{
+    const user=await requireUser(["ADMIN","MANAGER","CASHIER"]);
+    const id=Number(new URL(req.url).searchParams.get("id"));
+    if(!id) throw new Error("Orçamento inválido");
+    const result=await tx(async c=>{
+      const current=await c.query("SELECT id,status FROM quotations WHERE id=$1 FOR UPDATE",[id]);
+      if(!current.rows[0]) throw new Error("Orçamento não encontrado");
+      if(current.rows[0].status!=="OPEN") throw new Error("Somente orçamentos abertos podem ser excluídos");
+      await c.query("DELETE FROM quotation_items WHERE quotation_id=$1",[id]);
+      await c.query("DELETE FROM quotations WHERE id=$1",[id]);
+      await audit(user.id,"QUOTE_DELETED","quotations",id,{},c);
+      return {ok:true};
+    });
+    return ok(result);
+  }catch(e){return fail(e)}
+}
