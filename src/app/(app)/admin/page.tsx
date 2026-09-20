@@ -1,0 +1,1 @@
+import AdminClient from "@/components/AdminClient";import { requireUser } from "@/lib/auth";export default async function Page(){await requireUser(["ADMIN"]);return <AdminClient/>}
