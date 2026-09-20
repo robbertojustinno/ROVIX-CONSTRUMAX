@@ -1,0 +1,1 @@
+import StockClient from "@/components/StockClient";export default function Page(){return <StockClient/>}
