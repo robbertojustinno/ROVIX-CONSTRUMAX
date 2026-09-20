@@ -1,0 +1,1 @@
+import QuoteClient from "@/components/QuoteClient";export default function Page(){return <QuoteClient/>}
