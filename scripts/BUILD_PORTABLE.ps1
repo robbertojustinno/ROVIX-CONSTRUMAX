@@ -9,12 +9,40 @@ Set-Location $Repo
 $NodeSource = (Get-Command node.exe -ErrorAction Stop).Source
 if(!(Test-Path $NodeSource)){ throw "Node.js não encontrado." }
 if(!(Test-Path (Join-Path $PostgresHome "bin\initdb.exe"))){ throw "PostgreSQL não encontrado em $PostgresHome" }
+if(!(Test-Path (Join-Path $Repo "node_modules"))){ throw "node_modules não encontrado. Execute npm install primeiro." }
 
-Write-Host "Construindo ROVIX CONSTRUMAX standalone..." -ForegroundColor Cyan
-& npm run build
-if($LASTEXITCODE -ne 0){ throw "Falha no build Next.js." }
+$StageRoot = Join-Path $env:TEMP "ROVIX_CONSTRUMAX_BUILD"
+if(Test-Path $StageRoot){ Remove-Item $StageRoot -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $StageRoot | Out-Null
 
-$Standalone = Join-Path $Repo ".next\standalone"
+Write-Host "Preparando build limpo em $StageRoot ..." -ForegroundColor Cyan
+
+foreach($file in @("package.json","tsconfig.json","next.config.ts","next-env.d.ts",".env.local")){
+  $src = Join-Path $Repo $file
+  if(Test-Path $src){ Copy-Item $src (Join-Path $StageRoot $file) -Force }
+}
+
+foreach($folder in @("src","public","db")){
+  $src = Join-Path $Repo $folder
+  if(Test-Path $src){ Copy-Item $src (Join-Path $StageRoot $folder) -Recurse -Force }
+}
+
+Write-Host "Copiando dependências para o C: (pode levar alguns minutos)..." -ForegroundColor Cyan
+Copy-Item (Join-Path $Repo "node_modules") (Join-Path $StageRoot "node_modules") -Recurse -Force
+
+$NextCmd = Join-Path $StageRoot "node_modules\.bin\next.cmd"
+if(!(Test-Path $NextCmd)){ throw "Next.js não encontrado no staging." }
+
+Push-Location $StageRoot
+try {
+  Write-Host "Construindo ROVIX CONSTRUMAX standalone no C:..." -ForegroundColor Cyan
+  & $NextCmd build --webpack
+  if($LASTEXITCODE -ne 0){ throw "Falha no build Next.js." }
+} finally {
+  Pop-Location
+}
+
+$Standalone = Join-Path $StageRoot ".next\standalone"
 if(!(Test-Path (Join-Path $Standalone "server.js"))){ throw "Saída standalone não encontrada." }
 
 $DistBase = Join-Path $Repo "dist"
@@ -31,14 +59,14 @@ New-Item -ItemType Directory -Force -Path $AppDir,$NodeDir,$PgDir,(Join-Path $Di
 
 Get-ChildItem -Force $Standalone | Copy-Item -Destination $AppDir -Recurse -Force
 
-$StaticSource = Join-Path $Repo ".next\static"
+$StaticSource = Join-Path $StageRoot ".next\static"
 if(Test-Path $StaticSource){
   $StaticDest = Join-Path $AppDir ".next\static"
   New-Item -ItemType Directory -Force -Path $StaticDest | Out-Null
   Copy-Item (Join-Path $StaticSource "*") $StaticDest -Recurse -Force
 }
 
-$PublicSource = Join-Path $Repo "public"
+$PublicSource = Join-Path $StageRoot "public"
 if(Test-Path $PublicSource){
   Copy-Item $PublicSource (Join-Path $AppDir "public") -Recurse -Force
 }
@@ -86,3 +114,5 @@ Write-Host "Arquivo: $Zip"
 Write-Host "Tamanho: $size MB"
 Write-Host ""
 Write-Host "No cliente: descompactar e executar INICIAR_CONSTRUMAX.bat"
+
+Remove-Item $StageRoot -Recurse -Force -ErrorAction SilentlyContinue
