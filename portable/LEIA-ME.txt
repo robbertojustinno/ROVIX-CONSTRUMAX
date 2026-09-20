@@ -1,0 +1,54 @@
+ROVIX CONSTRUMAX PORTABLE
+=========================
+
+OBJETIVO
+--------
+Entregar ao cliente um pacote que funcione sem instalar Node.js, npm, Docker
+ou PostgreSQL no Windows.
+
+NO COMPUTADOR DO CLIENTE
+------------------------
+1. Descompacte ROVIX_CONSTRUMAX_PORTABLE.zip.
+2. Abra a pasta ROVIX_CONSTRUMAX_PORTABLE.
+3. Dê duplo clique em INICIAR_CONSTRUMAX.bat.
+4. Na primeira execução o sistema:
+   - cria um PostgreSQL privado dentro da própria pasta;
+   - escolhe portas locais livres;
+   - gera senhas internas aleatórias;
+   - cria o banco;
+   - executa todas as migrations;
+   - cria o usuário administrador;
+   - cria o Depósito Principal;
+   - abre PRIMEIRO_ACESSO.txt com a senha inicial;
+   - inicia o servidor;
+   - abre o navegador automaticamente.
+5. Para encerrar, execute PARAR_CONSTRUMAX.bat.
+
+IMPORTANTE
+----------
+- Não precisa instalar PostgreSQL.
+- Não precisa instalar Node.js.
+- Não precisa instalar Docker.
+- Não precisa executar npm.
+- Não depende do PATH do Windows.
+- Não precisa de conexão com internet para iniciar.
+- Todos os dados ficam em data\postgres dentro do pacote.
+- Faça backup periódico da pasta data.
+
+PRIMEIRO ACESSO
+---------------
+O arquivo config\PRIMEIRO_ACESSO.txt é criado automaticamente na primeira
+execução. Ele contém endereço, usuário e senha inicial.
+
+PORTAS
+------
+O sistema procura automaticamente uma porta livre para o PostgreSQL na faixa
+55432-55460 e para a aplicação na faixa 3131-3160.
+
+RECOMENDAÇÃO
+------------
+Descompacte em uma pasta local gravável, por exemplo:
+C:\ROVIX\CONSTRUMAX
+
+Evite executar diretamente de dentro do ZIP, unidade de rede ou pasta
+somente leitura.
