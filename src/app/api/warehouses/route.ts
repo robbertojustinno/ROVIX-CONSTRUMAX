@@ -1,0 +1,3 @@
+import { query } from "@/lib/db";import { requireUser } from "@/lib/auth";import { fail,ok } from "@/lib/http";import { audit } from "@/server/audit";
+export async function GET(){try{await requireUser();return ok((await query("SELECT * FROM warehouses ORDER BY id DESC LIMIT 500")).rows)}catch(e){return fail(e)}}
+export async function POST(req:Request){try{const user=await requireUser(["ADMIN","MANAGER","STOCK"]);const data=await req.json();const r=await query(`INSERT INTO warehouses(name,code,address) VALUES($1,$2,$3) RETURNING *`,[data.name,data.code,data.address]);await audit(user.id,"CREATE","warehouses",r.rows[0].id,data);return ok(r.rows[0],201)}catch(e){return fail(e)}}
