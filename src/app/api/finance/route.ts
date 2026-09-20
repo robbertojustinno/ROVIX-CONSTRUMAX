@@ -1,0 +1,2 @@
+import { query } from "@/lib/db";import { requireUser } from "@/lib/auth";import { fail,ok } from "@/lib/http";
+export async function GET(){try{await requireUser(["ADMIN","MANAGER","CASHIER"]);const [r,p]=await Promise.all([query(`SELECT r.*,c.name party FROM receivables r LEFT JOIN customers c ON c.id=r.customer_id ORDER BY due_date`),query(`SELECT p.*,s.name party FROM payables p LEFT JOIN suppliers s ON s.id=p.supplier_id ORDER BY due_date`)]);return ok({receivables:r.rows,payables:p.rows})}catch(e){return fail(e)}}
