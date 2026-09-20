@@ -1,0 +1,1 @@
+import FinanceClient from "@/components/FinanceClient";export default function Page(){return <FinanceClient/>}
