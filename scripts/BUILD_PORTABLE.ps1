@@ -75,6 +75,36 @@ New-Item -ItemType Directory -Force -Path (Join-Path $AppDir "db\migrations") | 
 Copy-Item (Join-Path $Repo "db\migrations\*.sql") (Join-Path $AppDir "db\migrations") -Force
 Copy-Item (Join-Path $Repo "portable\bootstrap.cjs") (Join-Path $AppDir "bootstrap.cjs") -Force
 
+$AppNodeModules = Join-Path $AppDir "node_modules"
+New-Item -ItemType Directory -Force -Path $AppNodeModules | Out-Null
+
+$PortablePackages = @(
+  "bcryptjs",
+  "pg",
+  "pg-connection-string",
+  "pg-pool",
+  "pg-protocol",
+  "pg-types",
+  "pgpass",
+  "pg-int8",
+  "postgres-array",
+  "postgres-bytea",
+  "postgres-date",
+  "postgres-interval",
+  "split2"
+)
+
+foreach($pkg in $PortablePackages){
+  $src = Join-Path $StageRoot ("node_modules\" + $pkg)
+  if(Test-Path $src){
+    $dst = Join-Path $AppNodeModules $pkg
+    if(Test-Path $dst){ Remove-Item $dst -Recurse -Force }
+    Copy-Item $src $dst -Recurse -Force
+  } else {
+    throw "Dependência portátil ausente: $pkg"
+  }
+}
+
 Copy-Item $NodeSource (Join-Path $NodeDir "node.exe") -Force
 
 foreach($folder in @("bin","lib","share")){
