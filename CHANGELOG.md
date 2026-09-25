@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.2 - 2026-09-25
+- Instalador comercial Windows em formato EXE.
+- Instala aplicação e runtimes privados em Program Files.
+- Dados, banco, configurações e logs ficam separados em C:\ProgramData\ROVIX\CONSTRUMAX.
+- Cria atalhos no Desktop e Menu Iniciar.
+- Primeiro uso cria banco, migrations e administrador automaticamente.
+- Desinstalador preserva os dados do cliente por segurança.
+- Novo comando npm run build:installer.
+- Geração do instalador com Inno Setup 6.
+
 ## 1.2.1 - 2026-09-20
 - Edição Portable para Windows sem instalação de Node.js, npm, Docker ou PostgreSQL no cliente.
 - Build standalone do Next.js.
