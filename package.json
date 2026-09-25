@@ -1,6 +1,6 @@
 {
   "name": "rovix-construmax",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack -p 3000",
@@ -8,7 +8,8 @@
     "start": "next start -p 3000",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "build:portable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/BUILD_PORTABLE.ps1"
+    "build:portable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/BUILD_PORTABLE.ps1",
+    "build:installer": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/BUILD_INSTALLER.ps1"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
