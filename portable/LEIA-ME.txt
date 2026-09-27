@@ -38,7 +38,13 @@ IMPORTANTE
 PRIMEIRO ACESSO
 ---------------
 O arquivo config\PRIMEIRO_ACESSO.txt é criado automaticamente na primeira
-execução. Ele contém endereço, usuário e senha inicial.
+execução.
+
+Credenciais iniciais padrão:
+Usuário: admin@rovix.local
+Senha: Rovix@123
+
+Recomenda-se alterar a senha após o primeiro acesso.
 
 PORTAS
 ------
