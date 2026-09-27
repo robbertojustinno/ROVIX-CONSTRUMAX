@@ -61,7 +61,7 @@ $env:JWT_SECRET = [string]$cfg.jwtSecret
 $env:ROVIX_INITIAL_ADMIN_PASSWORD = [string]$cfg.adminPassword
 $env:NODE_ENV = "production"
 $env:PORT = [string]$cfg.appPort
-$env:HOSTNAME = "127.0.0.1"
+$env:HOSTNAME = "0.0.0.0"
 
 $InitDb = Join-Path $PgHome "bin\initdb.exe"
 $PgCtl = Join-Path $PgHome "bin\pg_ctl.exe"
