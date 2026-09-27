@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.3.0 - 2026-09-27
+- Novo módulo Mobile oficial em /mobile.
+- Consulta de produtos por nome, SKU e código de barras no celular.
+- Cadastro de produtos pelo celular com categoria, marca, unidade, custo, preço e estoque mínimo.
+- Leitura de código de barras pela câmera em navegadores compatíveis, com entrada manual como fallback.
+- Ajuste auditável de estoque pelo celular.
+- Módulo Mobile usa o mesmo login, permissões, banco e auditoria do CONSTRUMAX.
+- Administrativo mostra endereço de rede local e QR Code para abrir o Mobile.
+- Administrador pode habilitar ou desabilitar o acesso Mobile.
+- Aplicação passa a aceitar conexões pela rede local; PostgreSQL permanece restrito a 127.0.0.1.
+- Instalador cria regra de firewall somente para perfil de rede Privada e portas da aplicação.
+- Instalador atualizado para 1.3.0 e warning de UninstallRun corrigido com RunOnceId.
+- Nova migration 004_mobile.sql.
+
 ## 1.2.3 - 2026-09-26
 - Novas instalações Portable e Setup passam a usar credencial inicial padrão.
 - Usuário inicial: admin@rovix.local.
