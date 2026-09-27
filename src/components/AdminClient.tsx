@@ -4,7 +4,7 @@ import { useEffect,useMemo,useState } from "react";
 type Ref={id:number;kind:"CATEGORY"|"BRAND"|"UNIT";code?:string;name:string};
 
 export default function AdminClient(){
- const[refs,setRefs]=useState<Ref[]>([]),[settings,setSettings]=useState<any>({company_name:"",company_logo:""}),[err,setErr]=useState(""),[msg,setMsg]=useState("");
+ const[refs,setRefs]=useState<Ref[]>([]),[settings,setSettings]=useState<any>({company_name:"",company_logo:"",mobile_enabled:"true"}),[mobileInfo,setMobileInfo]=useState<any>(null),[err,setErr]=useState(""),[msg,setMsg]=useState("");
  const[name,setName]=useState(""),[code,setCode]=useState(""),[kind,setKind]=useState<Ref["kind"]>("CATEGORY");
 
  const grouped=useMemo(()=>({
@@ -14,10 +14,11 @@ export default function AdminClient(){
  }),[refs]);
 
  async function load(){
-  const[r,s]=await Promise.all([fetch("/api/admin/references"),fetch("/api/admin/settings")]);
-  const rd=await r.json(),sd=await s.json();
+  const[r,s,m]=await Promise.all([fetch("/api/admin/references"),fetch("/api/admin/settings"),fetch("/api/admin/mobile-info")]);
+  const rd=await r.json(),sd=await s.json(),md=await m.json();
   if(r.ok)setRefs(rd);else setErr(rd.error);
   if(s.ok)setSettings(sd);else setErr(sd.error);
+  if(m.ok)setMobileInfo(md);
  }
  useEffect(()=>{load()},[]);
 
@@ -67,6 +68,26 @@ export default function AdminClient(){
   <div style={{marginTop:14}}>
    <button className="btn" onClick={saveSettings}>Salvar identidade</button>
    {settings.company_logo&&<button className="btn" style={{marginLeft:6}} onClick={()=>setSettings((s:any)=>({...s,company_logo:""}))}>Remover logo</button>}
+  </div>
+ </div><br/>
+
+ <div className="card">
+  <h2>Módulo Mobile</h2>
+  <p className="muted">Permite consultar e cadastrar produtos e ajustar estoque pelo celular conectado à mesma rede local.</p>
+  <label className="field" style={{maxWidth:360}}>
+   <span>Acesso pelo celular</span>
+   <select className="input" value={String(settings.mobile_enabled??"true")} onChange={e=>setSettings((s:any)=>({...s,mobile_enabled:e.target.value}))}>
+    <option value="true">Habilitado</option>
+    <option value="false">Desabilitado</option>
+   </select>
+  </label>
+  {mobileInfo?.url&&<div className="mobile-admin-box">
+    <div><b>Endereço no celular</b><div className="mobile-url">{mobileInfo.url}</div><div className="muted">{mobileInfo.note}</div></div>
+    {mobileInfo.qr&&<img src={mobileInfo.qr} alt="QR Code do módulo mobile" className="mobile-qr"/>}
+  </div>}
+  <div style={{marginTop:14}}>
+   <button className="btn" onClick={saveSettings}>Salvar configuração Mobile</button>
+   {mobileInfo?.url&&<button className="btn" style={{marginLeft:6}} onClick={()=>navigator.clipboard?.writeText(mobileInfo.url)}>Copiar endereço</button>}
   </div>
  </div><br/>
 
