@@ -48,7 +48,7 @@ if($firstRun){
     appPort = Pick-Port 3131 3160
     dbPassword = New-Hex 24
     jwtSecret = New-Hex 48
-    adminPassword = "Rvx-" + (New-Hex 8)
+    adminPassword = "Rovix@123"
   }
   $cfg | ConvertTo-Json | Set-Content -Encoding UTF8 $ConfigFile
 } else {
@@ -121,7 +121,7 @@ ROVIX CONSTRUMAX - PRIMEIRO ACESSO
 
 Endereço: http://127.0.0.1:$($cfg.appPort)
 Usuário: admin@rovix.local
-Senha: $($cfg.adminPassword)
+Senha: Rovix@123
 
 Guarde este arquivo em local seguro.
 "@
