@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { query } from "@/lib/db";
+import { query,tx } from "@/lib/db";
 import { ok,fail } from "@/lib/http";
 import { mobileDigest,newMobileToken,setMobileDeviceCookie } from "@/lib/mobile-auth";
 
@@ -25,13 +25,11 @@ export async function POST(req:Request){
   }
   const deviceId=crypto.randomUUID(),token=newMobileToken();
   const ip=(req.headers.get("x-forwarded-for")||"").split(",")[0].trim()||null;
-  await query("BEGIN");
-  try{
-    await query("INSERT INTO mobile_devices(device_id,name,token_hash,paired_at,last_seen_at,last_ip) VALUES($1,$2,$3,now(),now(),$4)",[deviceId,name,mobileDigest(token),ip]);
-    await query("UPDATE mobile_pair_codes SET used_at=now() WHERE code_hash=$1",[state.code_hash]);
-    await query("UPDATE mobile_pair_state SET code_hash=NULL,expires_at=NULL,attempts=0 WHERE id=1");
-    await query("COMMIT");
-  }catch(e){await query("ROLLBACK");throw e}
+  await tx(async db=>{
+    await db.query("INSERT INTO mobile_devices(device_id,name,token_hash,paired_at,last_seen_at,last_ip) VALUES($1,$2,$3,now(),now(),$4)",[deviceId,name,mobileDigest(token),ip]);
+    await db.query("UPDATE mobile_pair_codes SET used_at=now() WHERE code_hash=$1",[state.code_hash]);
+    await db.query("UPDATE mobile_pair_state SET code_hash=NULL,expires_at=NULL,attempts=0 WHERE id=1");
+  });
   await setMobileDeviceCookie(deviceId,token);
   return ok({device_id:deviceId,paired:true});
  }catch(e){return fail(e)}
