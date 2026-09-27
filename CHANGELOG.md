@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.3 - 2026-09-26
+- Novas instalações Portable e Setup passam a usar credencial inicial padrão.
+- Usuário inicial: admin@rovix.local.
+- Senha inicial: Rovix@123.
+- PRIMEIRO_ACESSO.txt passa a informar a credencial padrão.
+- Instalações existentes preservam a senha já gravada no banco.
+
 ## 1.2.2 - 2026-09-25
 - Instalador comercial Windows em formato EXE.
 - Instala aplicação e runtimes privados em Program Files.
