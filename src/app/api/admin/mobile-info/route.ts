@@ -1,6 +1,7 @@
 import os from "node:os";
 import { requireUser } from "@/lib/auth";
 import { ok,fail } from "@/lib/http";
+import QRCode from "qrcode";
 
 function privateIpv4(){
   const nets=os.networkInterfaces();
@@ -26,10 +27,13 @@ export async function GET(req:Request){
     const host=req.headers.get("host")||"";
     const port=host.includes(":")?host.split(":").pop():"3131";
     const ip=privateIpv4();
+    const url=ip?("http://"+ip+":"+port+"/mobile"):"";
+    const qr=url?await QRCode.toDataURL(url,{margin:1,width:260}):"";
     return ok({
       ip,
       port,
-      url:ip?("http://"+ip+":"+port+"/mobile"):"",
+      url,
+      qr,
       note:"O celular deve estar na mesma rede local/Wi-Fi do computador do CONSTRUMAX."
     });
   }catch(e){return fail(e)}
