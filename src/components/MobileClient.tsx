@@ -25,7 +25,7 @@ export default function MobileClient({userName,role}:{userName:string;role:strin
    if(b.ok)setWarehouses((await b.json()).filter((x:Warehouse)=>x.active!==false));
  });return()=>stopScan()},[]);
 
- useEffect(()=>{const t=setTimeout(async()=>{if(!query.trim()){setResults([]);return}const r=await fetch("/api/products?q="+encodeURIComponent(query));if(r.ok)setResults(await r.json())},250);return()=>clearTimeout(t)},[query]);
+ useEffect(()=>{const t=setTimeout(async()=>{if(!query.trim()){setResults([]);return}const r=await fetch("/api/mobile/products?q="+encodeURIComponent(query));if(r.ok)setResults(await r.json())},250);return()=>clearTimeout(t)},[query]);
 
  function setF(k:string,v:any){setForm((f:any)=>({...f,[k]:v}))}
  function clear(){setErr("");setMsg("")}
@@ -33,7 +33,7 @@ export default function MobileClient({userName,role}:{userName:string;role:strin
  async function saveProduct(){
   clear();
   if(!form.sku.trim()||!form.name.trim()||!form.unit){setErr("Informe SKU, descrição e unidade.");return}
-  const r=await fetch("/api/products",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(form)});
+  const r=await fetch("/api/mobile/products",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(form)});
   const d=await r.json();
   if(!r.ok){setErr(d.error);return}
   setMsg("Produto cadastrado com sucesso.");
@@ -42,7 +42,7 @@ export default function MobileClient({userName,role}:{userName:string;role:strin
 
  async function saveStock(){
   clear();
-  const r=await fetch("/api/stock",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({
+  const r=await fetch("/api/mobile/stock",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({
     product_id:Number(stock.product_id),warehouse_id:Number(stock.warehouse_id),new_quantity:Number(stock.new_quantity),notes:stock.notes
   })});
   const d=await r.json();
