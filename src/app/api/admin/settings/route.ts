@@ -15,7 +15,7 @@ export async function PUT(req:Request){
   try{
     const user=await requireUser(["ADMIN"]);
     const d=await req.json();
-    const allowed=["company_name","company_logo"];
+    const allowed=["company_name","company_logo","mobile_enabled"];
     for(const key of allowed){
       if(d[key]!==undefined){
         const value=String(d[key]??"");
