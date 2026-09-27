@@ -1,5 +1,5 @@
 #define MyAppName "ROVIX CONSTRUMAX"
-#define MyAppVersion "1.2.2"
+#define MyAppVersion "1.3.0"
 #define MyAppPublisher "ROVIX Automation"
 #define MyAppExeName "INICIAR_CONSTRUMAX_INSTALADO.ps1"
 
@@ -40,10 +40,13 @@ Name: "{autoprograms}\ROVIX CONSTRUMAX\ROVIX CONSTRUMAX"; Filename: "{sys}\Windo
 Name: "{autoprograms}\ROVIX CONSTRUMAX\Encerrar ROVIX CONSTRUMAX"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\PARAR_CONSTRUMAX_INSTALADO.ps1"""; WorkingDir: "{app}"
 
 [Run]
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""ROVIX CONSTRUMAX Mobile"""; Flags: runhidden
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""ROVIX CONSTRUMAX Mobile"" dir=in action=allow protocol=TCP localport=3131-3160 profile=private"; Flags: runhidden
 Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\INICIAR_CONSTRUMAX_INSTALADO.ps1"""; Description: "Abrir ROVIX CONSTRUMAX"; Flags: postinstall nowait skipifsilent
 
 [UninstallRun]
-Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\PARAR_CONSTRUMAX_INSTALADO.ps1"""; Flags: runhidden
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\PARAR_CONSTRUMAX_INSTALADO.ps1"""; Flags: runhidden; RunOnceId: "StopConstrumax"
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""ROVIX CONSTRUMAX Mobile"""; Flags: runhidden; RunOnceId: "RemoveConstrumaxFirewall"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
