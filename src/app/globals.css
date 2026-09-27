@@ -52,3 +52,6 @@
 .mobile-url{font-family:Consolas,monospace;font-size:16px;font-weight:700;margin:6px 0;word-break:break-all}
 .mobile-qr{width:150px;height:150px;background:#fff}
 @media(max-width:600px){.mobile-two{grid-template-columns:1fr}.mobile-admin-box{align-items:flex-start;flex-direction:column}.mobile-qr{width:180px;height:180px}}
+
+.mobile-pair-display{font-size:2.2rem;font-weight:900;letter-spacing:.16em;margin:8px 0;color:#111827}
+.mobile-pair-code{font-size:2rem;text-align:center;letter-spacing:.18em;font-weight:800}
